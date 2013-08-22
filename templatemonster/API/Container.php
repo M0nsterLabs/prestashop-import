@@ -25,7 +25,7 @@ class Container {
      */
     protected $_pages = array();
 
-    protected $screenshots_list = array();
+    protected $_screenshots = array();
 
     protected $_id;
     protected $_price;
