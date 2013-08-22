@@ -11,11 +11,15 @@ class Uploader {
 
     const BASE_API_PATH         = 'http://www.templatemonster.com/webapi/template_updates.php';
     const BASE_API_FILE_PATH    = 'http://www.templatemonster.com/webapi/xml/t_info.zip';
-    const FILE_NAME     = 'catalog';
-    const DATE_FROM     = 0;
-    const DATE_TO       = 1;
+    const FILE_NAME             = 'catalog';
+    const DATE_FROM             = 0;
+    const DATE_TO               = 1;
+
+    const FILE_FORMAT_ZIP       = '.zip';
+    const FILE_FORMAT_XML       = '.xml';
 
     protected $_dataDir  = '';
+    protected $_format    = '';
     protected $_apiUser;
     protected $_apiKey;
     protected $_dateFrom = '0000-00-00 00:00:00';
@@ -29,11 +33,22 @@ class Uploader {
         $this->_dateTo  = date('Y-m-d H:i:s');
     }
 
+    /**
+     * Executive action
+     * @param string $format
+     */
     public function run($format=self::FILE_FORMAT_ZIP)
     {
-        $this->_connect($format);
+        ini_set('max_execution_time', 10000);
+        $this->_format = $format;
+        $this->_connect();
     }
 
+    /**
+     * Set data directory
+     * @param $dataDir
+     * @throws UploaderException
+     */
     public  function setDataDir($dataDir)
     {
         if(!file_exists($dataDir) && !is_dir($dataDir)) {
@@ -63,30 +78,78 @@ class Uploader {
         }
     }
 
-    protected function _buildHTTPQuery()
+    /**
+     * Array of get params
+     * @return array
+     */
+    protected function getRequestParams()
     {
-        $data = array(
+        return array(
             'login'             => $this->_apiUser,
             'webapipassword'    => $this->_apiKey,
             'from'              => $this->_dateFrom,
             'to'                => date('Y-m-d H:i:s'),
         );
-        return self::BASE_API_PATH . http_build_query($data);
     }
 
+    /**
+     * get request by format
+     * @param $format
+     * @return string
+     */
+    protected function _buildHTTPQuery($format)
+    {
+        if( $format === self::FILE_FORMAT_ZIP ) {
+            return self::BASE_API_FILE_PATH;
+        }
+        $data = $this->getRequestParams();
+        return self::BASE_API_PATH . '?' . http_build_query($data);
+    }
 
+    /**
+     * sync data to file
+     * @throws Exception
+     */
     protected function _connect()
     {
         set_time_limit(0);
 
-        $fp = fopen ($this->_dataDir . DIRECTORY_SEPARATOR . self::FILE_NAME, 'w+');
-        $ch = curl_init(str_replace(" ","%20",$this->_buildHTTPQuery()));
-        curl_setopt($ch, CURLOPT_TIMEOUT, 300);
-        curl_setopt($ch, CURLOPT_FILE, $fp);
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-        curl_exec($ch);
-        curl_close($ch);
+        try {
+            $fp = fopen($this->_getPath(), 'w+');
+            $ch = curl_init(str_replace(" ","%20",$this->_buildHTTPQuery($this->_format)));
 
-        fclose($fp);
+            curl_setopt_array($ch, array(
+                CURLOPT_TIMEOUT         => 300,
+                CURLOPT_FILE            => $fp,
+                CURLOPT_FOLLOWLOCATION  => true,
+            ));
+
+            curl_exec($ch);
+
+            $contentType = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
+
+            if($contentType != 'application/zip' && $contentType != 'text/xml' )  {
+                throw new UploaderException('Unauthorized usage or invalid content type');
+            }
+            /** close connection */
+            curl_close($ch);
+            /** close file */
+            fclose($fp);
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
+
+    public function getImportedFile()
+    {
+        if(file_exists($this->_getPath())) {
+            return $this->_getPath();
+        }
+        throw new UploaderException("Uploaded file ({$this->_getPath()}) not exists. Try run Import again");
+    }
+
+    protected function _getPath()
+    {
+        return $this->_dataDir . DIRECTORY_SEPARATOR . self::FILE_NAME . $this->_format;
     }
 }

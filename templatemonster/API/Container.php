@@ -41,7 +41,7 @@ class Container {
     protected $type_name;
     protected $live_preview_url;
     protected $keywords;
-    protected $categories;
+    protected $categories = array();
     protected $sources;
     protected $software_required;
     protected $basic_colors;
@@ -97,9 +97,9 @@ class Container {
     /**
      * @param mixed $categories
      */
-    public function setCategories($categories)
+    public function setCategory($categoryId, $categoryName)
     {
-        $this->categories = $categories;
+        $this->categories[$categoryId] = $categoryName;
     }
 
     /**

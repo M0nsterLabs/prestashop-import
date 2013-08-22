@@ -10,6 +10,25 @@
 if (!defined('_PS_VERSION_')) {
     exit;
 }
+
+define('_TM_BASE_MODULE_DIR_', dirname(__FILE__));
+
+/** Uploader */
+include_once _TM_BASE_MODULE_DIR_ . DIRECTORY_SEPARATOR . 'API' . DIRECTORY_SEPARATOR . 'Uploader.php';
+include_once _TM_BASE_MODULE_DIR_ . DIRECTORY_SEPARATOR . 'API' . DIRECTORY_SEPARATOR . 'Uploader' . DIRECTORY_SEPARATOR . 'UploaderException.php';
+
+/** Xml Reader */
+include_once _TM_BASE_MODULE_DIR_ . DIRECTORY_SEPARATOR . 'API' . DIRECTORY_SEPARATOR . 'TmXmlReader.php';
+
+/** Container */
+include_once _TM_BASE_MODULE_DIR_ . DIRECTORY_SEPARATOR . 'API' . DIRECTORY_SEPARATOR . 'Container.php';
+include_once _TM_BASE_MODULE_DIR_ . DIRECTORY_SEPARATOR . 'API' . DIRECTORY_SEPARATOR . 'Container' . DIRECTORY_SEPARATOR . 'Page.php';
+include_once _TM_BASE_MODULE_DIR_ . DIRECTORY_SEPARATOR . 'API' . DIRECTORY_SEPARATOR . 'Container' . DIRECTORY_SEPARATOR . 'Property.php';
+include_once _TM_BASE_MODULE_DIR_ . DIRECTORY_SEPARATOR . 'API' . DIRECTORY_SEPARATOR . 'Container' . DIRECTORY_SEPARATOR . 'Screenshot.php';
+
+/** PrestaShop Setter */
+include_once _TM_BASE_MODULE_DIR_ . DIRECTORY_SEPARATOR . 'API' . DIRECTORY_SEPARATOR . 'Setter.php';
+
 /**
  * Class TemplateMonster
  */
@@ -57,7 +76,7 @@ class TemplateMonster extends Module {
         $cont = '';
 
         if( Tools::isSubmit('run' . $this->name) ) {
-
+            $cont .= $this->run();
         }
 
         if( Tools::isSubmit('submit' . $this->name) ) {
@@ -161,9 +180,39 @@ class TemplateMonster extends Module {
 
     private function run()
     {
-        $user   = Configuration::get('TEMPLATE_MONSTER_API_USER');
-        $token  = Configuration::get('TEMPLATE_MONSTER_API_TOKEN');
+        $user       = Configuration::get('TEMPLATE_MONSTER_API_USER');
+        $token      = Configuration::get('TEMPLATE_MONSTER_API_TOKEN');
+        $lastDate   = Configuration::get('TEMPLATE_MONSTER_LAST_UPDATE');
+
+        try {
+            $uploader = new Uploader($user, $token);
+            $uploader->setDataDir(_TM_BASE_MODULE_DIR_ .DIRECTORY_SEPARATOR . 'data');
+
+            if($lastDate) {
+                $fileFormat = Uploader::FILE_FORMAT_XML;
+                $uploader->setDate($lastDate);
+            } else {
+                $fileFormat = Uploader::FILE_FORMAT_ZIP;
+            }
+
+            $uploader->run($fileFormat);
+
+            $reader = new TmXmlReader($uploader->getImportedFile());
+
+            /** Setter $setter */
+            $setter = new Setter();
+
+            $countItems = $reader->read($setter);
+
+            /** Set date of catalog Update */
+            Configuration::updateValue('TEMPLATE_MONSTER_LAST_UPDATE', date('Y-m-d H:i:s'));
 
 
+
+        } catch (Exception $e) {
+            return $this->displayError($this->l($e->getMessage()));
+        }
+
+        return $this->displayConfirmation($this->l('Data synchronized successfully! <b>' . $countItems . '</b>  are imported'));
     }
 }
