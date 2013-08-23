@@ -58,7 +58,7 @@ class Setter {
         $product->date_add              = $item->getInsertedDate();
         $product->date_upd              = $item->getUpdateDate();
         $product->description           = $this->_description($item);
-        $product->meta_keywords         = substr(html_entity_decode($item->getKeywords(),ENT_QUOTES), 0, 255);
+        $product->meta_keywords         = $this->_keywords($item->getKeywords());
         $product->id_category_default   = $categoryIds[0];//(int) (isset($categoryIds[0]) ? $categoryIds[0] : 0);
         $product->name[$this->_lng]               = 'Template TM '.(int) $item->getId();
         $product->link_rewrite[$this->_lng]       = Tools::link_rewrite($product->name[$this->_lng]);
@@ -79,6 +79,18 @@ class Setter {
         $this->_importImages($item, $product->id);
 
         return $product->id;
+    }
+
+    /**
+     * Validate keywords
+     * @param $keywords
+     * @return mixed
+     */
+    protected function _keywords($keywords)
+    {
+        return str_replace('=', ' ',
+            substr(html_entity_decode($keywords, ENT_QUOTES), 0, 255)
+        );
     }
 
     /**
@@ -301,7 +313,8 @@ class Setter {
             $description .= '<h3>' .  $page->getName() . '</h3>';
             /** @var Screenshot $screen */
             foreach($page->getScreenshots() as $screen) {
-                $description .= "<img src='{$screen->getUri()}' alt='{$page->getName()}'/>";
+                $description .= '<p>' .  $screen->getDescription() . '</p>';
+                $description .= "<img class='template-descr-img' src='{$screen->getUri()}' alt='{$page->getName()}'/>";
             }
         }
         return $description;
@@ -314,6 +327,7 @@ class Setter {
      */
     protected function _importImages(Container $item, $productId)
     {
+
         /**
          * @TODO Import images logic
          */
