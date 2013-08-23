@@ -12,7 +12,6 @@
  * @package Tm
  */
 class TmXmlReader {
-
     const ZIPPED_FILE_NAME = 't_info.xml';
 
     protected $_file;
@@ -71,7 +70,6 @@ class TmXmlReader {
      */
     protected function _setItem($template)
     {
-
         $templateItem = new Container();
 
         $templateItem->setId            ($this->_value('id', $template, null));
@@ -181,7 +179,4 @@ class TmXmlReader {
         }
         return $default;
     }
-
-
-
 }

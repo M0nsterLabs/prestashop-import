@@ -10,22 +10,18 @@
 if (!defined('_PS_VERSION_')) {
     exit;
 }
-
 define('_TM_BASE_MODULE_DIR_', dirname(__FILE__));
 
 /** Uploader */
 include_once _TM_BASE_MODULE_DIR_ . DIRECTORY_SEPARATOR . 'API' . DIRECTORY_SEPARATOR . 'Uploader.php';
 include_once _TM_BASE_MODULE_DIR_ . DIRECTORY_SEPARATOR . 'API' . DIRECTORY_SEPARATOR . 'Uploader' . DIRECTORY_SEPARATOR . 'UploaderException.php';
-
 /** Xml Reader */
 include_once _TM_BASE_MODULE_DIR_ . DIRECTORY_SEPARATOR . 'API' . DIRECTORY_SEPARATOR . 'TmXmlReader.php';
-
 /** Container */
 include_once _TM_BASE_MODULE_DIR_ . DIRECTORY_SEPARATOR . 'API' . DIRECTORY_SEPARATOR . 'Container.php';
 include_once _TM_BASE_MODULE_DIR_ . DIRECTORY_SEPARATOR . 'API' . DIRECTORY_SEPARATOR . 'Container' . DIRECTORY_SEPARATOR . 'Page.php';
 include_once _TM_BASE_MODULE_DIR_ . DIRECTORY_SEPARATOR . 'API' . DIRECTORY_SEPARATOR . 'Container' . DIRECTORY_SEPARATOR . 'Property.php';
 include_once _TM_BASE_MODULE_DIR_ . DIRECTORY_SEPARATOR . 'API' . DIRECTORY_SEPARATOR . 'Container' . DIRECTORY_SEPARATOR . 'Screenshot.php';
-
 /** PrestaShop Setter */
 include_once _TM_BASE_MODULE_DIR_ . DIRECTORY_SEPARATOR . 'API' . DIRECTORY_SEPARATOR . 'Setter.php';
 
@@ -65,9 +61,9 @@ class TemplateMonster extends Module {
     public function uninstall()
     {
         return parent::uninstall()
-            && Configuration::updateValue('TEMPLATE_MONSTER_LAST_UPDATE', '')
-            && Configuration::updateValue('TEMPLATE_MONSTER_API_USER'   , '')
-            && Configuration::updateValue('TEMPLATE_MONSTER_API_TOKEN'  , '');
+            && Configuration::deleteByName('TEMPLATE_MONSTER_LAST_UPDATE')
+            && Configuration::deleteByName('TEMPLATE_MONSTER_API_USER')
+            && Configuration::deleteByName('TEMPLATE_MONSTER_API_TOKEN');
     }
 
     public function getContent()
@@ -94,7 +90,6 @@ class TemplateMonster extends Module {
             }
         }
         return $cont . $this->displayForm();
-
     }
 
     public function displayForm()
@@ -158,13 +153,11 @@ class TemplateMonster extends Module {
                 'desc' => $this->l('Back to list')
             )
         );
-
         $helper->fields_value['TEMPLATE_MONSTER_API_USER']  = Configuration::get('TEMPLATE_MONSTER_API_USER');
         $helper->fields_value['TEMPLATE_MONSTER_API_TOKEN'] = Configuration::get('TEMPLATE_MONSTER_API_TOKEN');
 
         return $helper->generateForm($fields_form);
     }
-
 
     /**
      * Validate Form Data Via API Connector
@@ -199,20 +192,15 @@ class TemplateMonster extends Module {
 
             $reader = new TmXmlReader($uploader->getImportedFile());
 
-            /** Setter $setter */
             $setter = new Setter();
-
             $countItems = $reader->read($setter);
 
             /** Set date of catalog Update */
             Configuration::updateValue('TEMPLATE_MONSTER_LAST_UPDATE', date('Y-m-d H:i:s'));
 
-
-
         } catch (Exception $e) {
             return $this->displayError($this->l($e->getMessage()));
         }
-
         return $this->displayConfirmation($this->l('Data synchronized successfully! <b>' . $countItems . '</b>  are imported'));
     }
 }

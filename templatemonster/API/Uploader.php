@@ -9,7 +9,9 @@
 
 class Uploader {
 
+    /** api path used for catalog update */
     const BASE_API_PATH         = 'http://www.templatemonster.com/webapi/template_updates.php';
+    /** api path for retrieve all catalog */
     const BASE_API_FILE_PATH    = 'http://www.templatemonster.com/webapi/xml/t_info.zip';
     const FILE_NAME             = 'catalog';
     const DATE_FROM             = 0;
@@ -20,7 +22,9 @@ class Uploader {
 
     protected $_dataDir  = '';
     protected $_format    = '';
+    /** @var  string User partner login */
     protected $_apiUser;
+    /** @var  string User partner password */
     protected $_apiKey;
     protected $_dateFrom = '0000-00-00 00:00:00';
 
@@ -34,6 +38,7 @@ class Uploader {
     }
 
     /**
+     * Run upload data process
      * Executive action
      * @param string $format
      */
@@ -61,6 +66,7 @@ class Uploader {
     }
 
     /**
+     * Set date of last catalog update
      * @param $date
      * @param int $dateType
      * @throws Exception
@@ -79,6 +85,7 @@ class Uploader {
     }
 
     /**
+     * Return array of api params
      * Array of get params
      * @return array
      */
@@ -107,7 +114,7 @@ class Uploader {
     }
 
     /**
-     * sync data to file
+     * Sync data to file
      * @throws Exception
      */
     protected function _connect()
@@ -140,6 +147,11 @@ class Uploader {
         }
     }
 
+    /**
+     * Return file path of imported file
+     * @return string
+     * @throws UploaderException
+     */
     public function getImportedFile()
     {
         if(file_exists($this->_getPath())) {

@@ -8,6 +8,4 @@
  */
 
 class UploaderException extends  Exception
-{
-
-}
+{}

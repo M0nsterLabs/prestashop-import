@@ -8,12 +8,8 @@
  */
 
 include_once(_PS_ROOT_DIR_ . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'config.inc.php');
-//ini_set('memory_limit', '1024M');
-//ini_set('display_errors', 'On');
-//ini_set('max_execution_time', 10000);
 
 class Setter {
-
     /** @var Db  */
     protected $_db;
     protected $_lng = 1;
@@ -84,8 +80,6 @@ class Setter {
         return $product->id;
     }
 
-
-
     /**
      * @param Container $item
      * @param $productId
@@ -116,7 +110,6 @@ class Setter {
         }
     }
 
-
     /**
      * @param $value
      * @param $featureId
@@ -138,7 +131,6 @@ class Setter {
                 'value'   => $value
             )
         );
-
         return $valueId;
     }
 

@@ -12,7 +12,6 @@
  * @package Tm
  */
 class XmlReader {
-
     protected $_file;
     /** @var  \DOMDocument */
     protected  $_dom;
@@ -160,7 +159,4 @@ class XmlReader {
         }
         return $default;
     }
-
-
-
 }

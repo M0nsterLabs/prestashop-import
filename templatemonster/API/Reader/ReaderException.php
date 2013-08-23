@@ -8,6 +8,4 @@
  */
 
 class ReaderException extends  Exception
-{
-
-}
+{}
