@@ -84,6 +84,7 @@ class TmXmlReader {
         $templateItem->setLivePreviewUrl($this->_value('live_preview_url', $template, null));
         $templateItem->setSoftwareRequired($this->_value('software_required', $template, null));
         $templateItem->setSources       ($this->_value('sources', $template, null));
+        $templateItem->setAuthor        ($this->_value('author_nick', $template, ''));
 
         $this->_importCategories($templateItem, $template);
         $this->_importPages($templateItem, $template);

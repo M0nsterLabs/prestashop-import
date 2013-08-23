@@ -62,6 +62,7 @@ class Setter {
         $product->id_category_default   = $categoryIds[0];//(int) (isset($categoryIds[0]) ? $categoryIds[0] : 0);
         $product->name[$this->_lng]               = 'Template TM '.(int) $item->getId();
         $product->link_rewrite[$this->_lng]       = Tools::link_rewrite($product->name[$this->_lng]);
+        $product->id_manufacturer                 = $this->_importManufacturer($item);
 
         $product->save();
 
@@ -78,6 +79,25 @@ class Setter {
         $this->_importImages($item, $product->id);
 
         return $product->id;
+    }
+
+    /**
+     * Import Template Manufacturer
+     * @param Container $item
+     * @return int|mixed
+     */
+    protected function _importManufacturer(Container $item)
+    {
+        if( ($manufacturerId = $this->getManufacturer($item)) ) {
+            return $manufacturerId;
+        }
+
+        $manufacturer = new Manufacturer();
+        $manufacturer->name = $item->getAuthor();
+        $manufacturer->active = 1;
+        $manufacturer->add();
+
+        return (int)$manufacturer->id;
     }
 
     /**
@@ -238,6 +258,15 @@ class Setter {
 			SELECT id_product
 			FROM " . $this->tableName('product') . " p
 			WHERE p.reference = 'TM_" . $productId . "'
+        ");
+    }
+
+    protected function getManufacturer(Container $item)
+    {
+        return $this->_db->getValue("
+            SELECT id_manufacturer
+            FROM " . $this->tableName('manufacturer') . "
+            WHERE name ='" . pSQL($item->getAuthor()) . "'
         ");
     }
 

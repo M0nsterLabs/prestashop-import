@@ -45,6 +45,7 @@ class Container {
     protected $sources;
     protected $software_required;
     protected $basic_colors;
+    protected $author;
 
     /**
      * @param mixed $id
@@ -331,5 +332,19 @@ class Container {
         return $this->_properties;
     }
 
+    /**
+     * @param mixed $author
+     */
+    public function setAuthor($author)
+    {
+        $this->author = $author;
+    }
 
+    /**
+     * @return mixed
+     */
+    public function getAuthor()
+    {
+        return $this->author;
+    }
 }
