@@ -13,7 +13,7 @@ class Setter {
     /** @var Db  */
     protected $_db;
     protected $_lng = 1;
-    protected $_imageSizes = array();
+    protected $_imageTypes = array();
 
     public function __construct()
     {
@@ -23,26 +23,12 @@ class Setter {
     }
 
     /**
-     * get images size
-     * @throws Exception
+     * get images type
+     * @return array
      */
     protected function _cacheImagesSizes()
     {
-        $result = $this->_db->executeS("
-            SELECT name, width, height
-            FROM " . $this->tableName('image_type') . "
-            WHERE products=1
-        ");
-
-        if($result === false) {
-            throw new Exception('Images types not found');
-        }
-
-        foreach($result as $row) {
-            $this->_imageSizes[] = array(
-                $row['name'], $row['width'], $row['height']
-            );
-        }
+        $this->_imageTypes = ImageType::getImagesTypes('products');
     }
 
     /**
@@ -99,6 +85,7 @@ class Setter {
 
         /** Remove Old Features */
         $product->deleteFeatures();
+        $product->deleteImages();
 
         $this->_importProductFeature($item, $product->id);
         $this->_importImages($item, $product->id);
@@ -359,7 +346,7 @@ class Setter {
                 if(substr_count($screenshot->getUri(), 'original-1200') ||
                     substr_count($screenshot->getUri(), 'original_1200')){
 
-                    $uploadImage = new TmUploaderImages($this->_imageSizes);
+                    $uploadImage = new TmUploaderImages($this->_imageTypes);
 
                     $uploadImage->uri = $screenshot->getUri();
                     $uploadImage->productId = (int)$productId;
@@ -373,7 +360,7 @@ class Setter {
             foreach($item->getPages() as $pages){
                 foreach($pages->getScreenshots() as $screenshot){
 
-                    $uploadImage = new TmUploaderImages($this->_imageSizes);
+                    $uploadImage = new TmUploaderImages($this->_imageTypes);
 
                     $uploadImage->uri = $screenshot->getUri();
                     $uploadImage->productId = (int)$productId;
