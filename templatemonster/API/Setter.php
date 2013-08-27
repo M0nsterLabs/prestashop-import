@@ -13,11 +13,36 @@ class Setter {
     /** @var Db  */
     protected $_db;
     protected $_lng = 1;
+    protected $_imageSizes = array();
 
     public function __construct()
     {
         $this->_db = Db::getInstance();
         $this->_lng = (int)Configuration::get('PS_LANG_DEFAULT');
+        $this->_cacheImagesSizes();
+    }
+
+    /**
+     * get images size
+     * @throws Exception
+     */
+    protected function _cacheImagesSizes()
+    {
+        $result = $this->_db->executeS("
+            SELECT name, width, height
+            FROM " . $this->tableName('image_type') . "
+            WHERE products=1
+        ");
+
+        if($result === false) {
+            throw new Exception('Images types not found');
+        }
+
+        foreach($result as $row) {
+            $this->_imageSizes[] = array(
+                $row['name'], $row['width'], $row['height']
+            );
+        }
     }
 
     /**
