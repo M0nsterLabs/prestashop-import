@@ -352,9 +352,38 @@ class Setter {
      */
     protected function _importImages(Container $item, $productId)
     {
+        if($productId){
+            /* Add Pictures */
+            $n = 1;
+            foreach ($item->getScreenshots() as $screenshot){
+                if(substr_count($screenshot->getUri(), 'original-1200') ||
+                    substr_count($screenshot->getUri(), 'original_1200')){
 
-        /**
-         * @TODO Import images logic
-         */
+                    $uploadImage = new TmUploaderImages($this->_imageSizes);
+
+                    $uploadImage->uri = $screenshot->getUri();
+                    $uploadImage->productId = (int)$productId;
+                    $uploadImage->position = $n++;
+                    $uploadImage->tmAdd();
+
+                    unset($uploadImage);
+                }
+            }
+
+            foreach($item->getPages() as $pages){
+                foreach($pages->getScreenshots() as $screenshot){
+
+                    $uploadImage = new TmUploaderImages($this->_imageSizes);
+
+                    $uploadImage->uri = $screenshot->getUri();
+                    $uploadImage->productId = (int)$productId;
+                    $uploadImage->position = $n++;
+                    $uploadImage->description = $screenshot->getDescription();
+                    $uploadImage->tmAdd();
+
+                    unset($uploadImage);
+                }
+            }
+        }
     }
 }

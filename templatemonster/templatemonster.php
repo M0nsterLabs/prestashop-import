@@ -24,6 +24,8 @@ include_once _TM_BASE_MODULE_DIR_ . DIRECTORY_SEPARATOR . 'API' . DIRECTORY_SEPA
 include_once _TM_BASE_MODULE_DIR_ . DIRECTORY_SEPARATOR . 'API' . DIRECTORY_SEPARATOR . 'Container' . DIRECTORY_SEPARATOR . 'Screenshot.php';
 /** PrestaShop Setter */
 include_once _TM_BASE_MODULE_DIR_ . DIRECTORY_SEPARATOR . 'API' . DIRECTORY_SEPARATOR . 'Setter.php';
+/** UploaderImages */
+include_once _TM_BASE_MODULE_DIR_ . DIRECTORY_SEPARATOR . 'API' . DIRECTORY_SEPARATOR . 'TmUploaderImages.php';
 
 /**
  * Class TemplateMonster
